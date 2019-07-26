@@ -1,0 +1,25 @@
+{
+
+  "manifest_version": 2,
+  "name": "TLDR",
+  "version": "1.0",
+
+  "description": "Provides info about terms of use.",
+  "permissions": [
+    "activeTab",
+    "tabs"
+  ],
+
+  "browser_action": {
+    "browser_style": true,
+    "default_title": "TLDR",
+    "default_popup": "tldr.html"
+
+  },
+  "background": {
+    "scripts": [
+      "main.js"
+    ]
+  }
+
+}
