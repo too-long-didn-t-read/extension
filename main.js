@@ -15,7 +15,13 @@ function getCurrentUrl(message, sender, sendRequest) {
             console.log(tabs)
             browser.tabs.get(tabs[0].id , 
                 tab => {
-                sendRequest(tab)
+                    let domain;
+                    try {
+                      domain = extractDomain(new URL(tab.url))
+                    } catch (e) {
+                      domain = null;
+                    }
+                    sendRequest(domain)
                 });
             }
     );
@@ -23,7 +29,6 @@ function getCurrentUrl(message, sender, sendRequest) {
 }
 
 browser.runtime.onMessage.addListener(getCurrentUrl)
-
 
 
 // change browser action icon on tab change
@@ -42,8 +47,7 @@ browser.tabs.onActivated.addListener((activeTab) => {
     )
 })
 
-function extractDomain(url) {
-    var domain = url.split('//')[1].split('/')[0]
-    return domain
+extractDomain = (url) => {
+    return (!!url.origin && url.hostname) || new Error(`${url.href} is not a valid domain`)
 }
 

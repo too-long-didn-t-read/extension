@@ -13,7 +13,7 @@
   "browser_action": {
     "browser_style": true,
     "default_title": "TLDR",
-    "default_popup": "tldr.html"
+    "default_popup": "./popup/tldr.html"
 
   },
   "background": {
