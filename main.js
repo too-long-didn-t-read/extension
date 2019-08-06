@@ -1,5 +1,7 @@
 var browser = chrome || browser;
 
+var currentDomain = null;
+var currentDomainInfo = {};
 
 // return the current tab url to the browser action popup
 function getCurrentUrl(message, sender, sendRequest) {
@@ -12,16 +14,12 @@ function getCurrentUrl(message, sender, sendRequest) {
             windowId: browser.windows.WINDOW_ID_CURRENT
         },
         (tabs) => {
-            console.log(tabs)
             browser.tabs.get(tabs[0].id , 
                 tab => {
-                    let domain;
-                    try {
-                      domain = extractDomain(new URL(tab.url))
-                    } catch (e) {
-                      domain = null;
-                    }
-                    sendRequest(domain)
+                    sendRequest({
+                        domainInfo: currentDomainInfo[0],
+                        domain: currentDomain
+                    })
                 });
             }
     );
@@ -32,11 +30,14 @@ browser.runtime.onMessage.addListener(getCurrentUrl)
 
 
 // change browser action icon on tab change
-browser.tabs.onActivated.addListener((activeTab) => {
-    browser.tabs.get(activeTab.tabId,
+browser.tabs.onUpdated.addListener((activeTab) => {
+    browser.tabs.get(activeTab,
         (res) => {
             var domain = extractDomain(new URL(res.url))
-            getDomainInfo(domain)
+            if (currentDomain !== domain) {
+                currentDomain = domain
+                getDomainInfo(domain)
+            }
         }
     )
 })
@@ -46,12 +47,19 @@ extractDomain = (url) => {
 }
 
 getDomainInfo = (domain) => {
+    console.log('getting domain info for : ', domain)
     var xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
+    xhr.responseType = 'json';
     xhr.onreadystatechange = () => {
         if(xhr.status === 200) {
-            console.log(xhr.responseText);
-            setBrowserActionIcon('green')
+            currentDomainInfo = xhr.response;
+            console.log(currentDomainInfo)
+            if (currentDomainInfo && currentDomainInfo.length === 1) {
+                setBrowserActionIcon('green')
+            } else {
+                setBrowserActionIcon('grey')    
+            }
         } else {
             setBrowserActionIcon('grey')
         }
