@@ -35,14 +35,8 @@ browser.runtime.onMessage.addListener(getCurrentUrl)
 browser.tabs.onActivated.addListener((activeTab) => {
     browser.tabs.get(activeTab.tabId,
         (res) => {
-            var domain = extractDomain(res.url)
-            // @TODO : call to API 
-            color = 'red'
-            var settingIcon = browser.browserAction.setIcon(
-                {
-                    path: 'http://www.newdesignfile.com/postpic/2013/01/red-and-green-circle-icon_247687.png'
-                }
-            )
+            var domain = extractDomain(new URL(res.url))
+            getDomainInfo(domain)
         }
     )
 })
@@ -51,3 +45,25 @@ extractDomain = (url) => {
     return (!!url.origin && url.hostname) || new Error(`${url.href} is not a valid domain`)
 }
 
+getDomainInfo = (domain) => {
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+    xhr.onreadystatechange = () => {
+        if(xhr.status === 200) {
+            console.log(xhr.responseText);
+            setBrowserActionIcon('green')
+        } else {
+            setBrowserActionIcon('grey')
+        }
+    }
+    xhr.open("GET", `https://tldr-sails.herokuapp.com/tldr?uniqueName=privacy://${domain}`);
+    xhr.send();
+}
+
+setBrowserActionIcon = (color) => {
+    browser.browserAction.setIcon(
+        {
+            path: `./icons/${color}.png`
+        }
+    )
+}

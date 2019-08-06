@@ -7,7 +7,8 @@
   "description": "Provides info about terms of use.",
   "permissions": [
     "activeTab",
-    "tabs"
+    "tabs",
+    "https://tldr-sails.herokuapp.com/"
   ],
 
   "browser_action": {
